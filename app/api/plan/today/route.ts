@@ -72,6 +72,13 @@ export async function GET() {
       { onConflict: 'user_id,week_number' }
     )
 
+    if (needsRegeneration) {
+      await supabase
+        .from('profiles')
+        .update({ last_progress_at: now.toISOString() })
+        .eq('user_id', userId)
+    }
+
     plan = generated
   }
 
