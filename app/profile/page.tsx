@@ -7,6 +7,8 @@ export default function ProfilePage() {
   const [form, setForm] = useState({
     heightCm: '',
     weightKg: '',
+    bodyFatPct: '',
+    muscleMassKg: '',
     age: '',
     gender: 'male',
     experienceLevel: 'beginner',
@@ -28,6 +30,8 @@ export default function ProfilePage() {
       body: JSON.stringify({
         heightCm: Number(form.heightCm),
         weightKg: Number(form.weightKg),
+        bodyFatPct: form.bodyFatPct ? Number(form.bodyFatPct) : undefined,
+        muscleMassKg: form.muscleMassKg ? Number(form.muscleMassKg) : undefined,
         age: Number(form.age),
         gender: form.gender,
         experienceLevel: form.experienceLevel,
@@ -58,6 +62,47 @@ export default function ProfilePage() {
         <label>키(cm) <input value={form.heightCm} onChange={(e) => setForm({ ...form, heightCm: e.target.value })} required /></label>
         <label>몸무게(kg) <input value={form.weightKg} onChange={(e) => setForm({ ...form, weightKg: e.target.value })} required /></label>
         <label>나이 <input value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} required /></label>
+        <label>
+          인바디 사진 업로드 (선택)
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              const reader = new FileReader()
+              reader.onload = async () => {
+                try {
+                  const res = await fetch('/api/inbody', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageBase64: reader.result }),
+                  })
+                  if (res.ok) {
+                    const data = await res.json()
+                    setForm((prev) => ({
+                      ...prev,
+                      bodyFatPct: data.bodyFatPct != null ? String(data.bodyFatPct) : prev.bodyFatPct,
+                      muscleMassKg: data.muscleMassKg != null ? String(data.muscleMassKg) : prev.muscleMassKg,
+                    }))
+                    setMessage(
+                      data.bodyFatPct != null
+                        ? '인바디 사진에서 값을 읽었습니다. 확인 후 저장하세요.'
+                        : '사진에서 값을 정확히 읽지 못했습니다. 직접 입력해주세요.'
+                    )
+                  } else {
+                    setMessage('사진 분석에 실패했습니다. 직접 입력해주세요.')
+                  }
+                } catch {
+                  setMessage('사진 분석 중 오류가 발생했습니다. 직접 입력해주세요.')
+                }
+              }
+              reader.readAsDataURL(file)
+            }}
+          />
+        </label>
+        <label>체지방률(%) <input value={form.bodyFatPct} onChange={(e) => setForm({ ...form, bodyFatPct: e.target.value })} /></label>
+        <label>골격근량(kg) <input value={form.muscleMassKg} onChange={(e) => setForm({ ...form, muscleMassKg: e.target.value })} /></label>
         <label>성별
           <select value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
             <option value="male">남성</option>
