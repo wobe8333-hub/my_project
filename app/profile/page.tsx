@@ -20,6 +20,8 @@ export default function ProfilePage() {
     allergies: '',
   })
   const [message, setMessage] = useState<string | null>(null)
+  const [equipmentList, setEquipmentList] = useState<string[]>([])
+  const [checkedEquipment, setCheckedEquipment] = useState<string[]>([])
   const router = useRouter()
 
   async function handleSubmit(e: React.FormEvent) {
@@ -47,6 +49,11 @@ export default function ProfilePage() {
       }),
     })
     if (res.ok) {
+      await fetch('/api/gym-equipment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ equipment: checkedEquipment }),
+      })
       setMessage('저장되었습니다.')
       router.push('/today')
     } else {
@@ -133,7 +140,46 @@ export default function ProfilePage() {
           </select>
         </label>
         {form.environment === 'gym' && (
-          <label>헬스장 이름 <input value={form.gymName} onChange={(e) => setForm({ ...form, gymName: e.target.value })} /></label>
+          <>
+            <label>헬스장 이름 <input value={form.gymName} onChange={(e) => setForm({ ...form, gymName: e.target.value })} /></label>
+            <button
+              type="button"
+              onClick={async () => {
+                setMessage('헬스장 정보를 검색하고 있습니다...')
+                const res = await fetch('/api/gym-equipment/lookup', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ gymName: form.gymName }),
+                })
+                const data = await res.json()
+                setEquipmentList(data.equipment ?? [])
+                setCheckedEquipment(data.equipment ?? [])
+                setMessage(
+                  data.equipment?.length
+                    ? '기구 목록을 찾았습니다. 확인 후 수정하세요.'
+                    : '자동으로 찾지 못했습니다. 직접 체크해주세요.'
+                )
+              }}
+            >
+              기구 자동 조회
+            </button>
+            {['덤벨', '바벨', '스미스머신', '렛풀다운', '레그프레스', '케틀벨', '러닝머신', '벤치프레스'].map(
+              (item) => (
+                <label key={item} style={{ display: 'block' }}>
+                  <input
+                    type="checkbox"
+                    checked={checkedEquipment.includes(item)}
+                    onChange={(e) => {
+                      setCheckedEquipment((prev) =>
+                        e.target.checked ? [...prev, item] : prev.filter((x) => x !== item)
+                      )
+                    }}
+                  />
+                  {item}
+                </label>
+              )
+            )}
+          </>
         )}
         <label>음식 알레르기/기피 (쉼표로 구분) <input value={form.allergies} onChange={(e) => setForm({ ...form, allergies: e.target.value })} /></label>
         <button type="submit">저장</button>
