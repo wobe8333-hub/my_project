@@ -58,7 +58,13 @@ ${adherenceNote ? `- 지난주 진행 상황: ${adherenceNote}` : ''}
   const content = data.choices?.[0]?.message?.content
   if (!content) throw new Error('OpenRouter 응답에 내용이 없습니다.')
 
-  const parsed = JSON.parse(content)
+  let parsed: any
+  try {
+    parsed = JSON.parse(content)
+  } catch {
+    throw new Error('AI 응답을 파싱할 수 없습니다.')
+  }
+
   if (!Array.isArray(parsed.days) || parsed.days.length !== 7) {
     throw new Error('AI가 7일치 계획을 올바른 형식으로 생성하지 못했습니다.')
   }

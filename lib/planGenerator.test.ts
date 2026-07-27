@@ -80,4 +80,17 @@ describe('generateWeeklyPlan', () => {
 
     await expect(generateWeeklyPlan(fakeProfile, [])).rejects.toThrow()
   })
+
+  it('응답 content가 JSON이 아니면 파싱 에러를 던진다', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: '죄송합니다, 계획을 생성할 수 없습니다.' } }],
+      }),
+    }) as any
+
+    await expect(generateWeeklyPlan(fakeProfile, [])).rejects.toThrow(
+      'AI 응답을 파싱할 수 없습니다.'
+    )
+  })
 })
