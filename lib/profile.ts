@@ -53,7 +53,7 @@ export async function upsertProfile(
     gym_name: input.gymName ?? null,
     allergies: input.allergies,
     updated_at: new Date().toISOString(),
-  })
+  }, { onConflict: 'user_id' })
 
   if (error) throw new Error('프로필 저장에 실패했습니다: ' + error.message)
 }
