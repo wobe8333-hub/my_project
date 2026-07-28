@@ -27,8 +27,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="page">
-      <h1 className="page-title">로그인</h1>
+    <main className="page auth-page">
+      <h1 className="auth-logo">Personal Training</h1>
       <form className="stack" onSubmit={handleSubmit}>
         <input
           className="input"
@@ -46,12 +46,16 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        <div className="auth-row-end">
+          <a className="text-link" href="/forgot-password">비밀번호를 잊으셨나요?</a>
+        </div>
         <button className="btn btn-primary" type="submit" disabled={submitting}>
           {submitting ? '로그인 중...' : '로그인'}
         </button>
       </form>
       {error && <p className="text-error">{error}</p>}
-      <p className="text-secondary">
+      <hr className="divider" />
+      <p className="text-secondary" style={{ textAlign: 'center' }}>
         아직 계정이 없으신가요? <a className="text-link" href="/signup">회원가입</a>
       </p>
     </main>

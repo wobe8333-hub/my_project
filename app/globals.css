@@ -120,6 +120,31 @@ button {
   margin-bottom: 4px;
 }
 
+/* Auth pages */
+
+.auth-page {
+  justify-content: center;
+  min-height: 100vh;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.auth-logo {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.auth-row-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .stack {
   display: flex;
   flex-direction: column;
