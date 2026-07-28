@@ -23,32 +23,44 @@ export default function TodayPage() {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const router = useRouter()
 
-  useEffect(() => {
-    fetch('/api/plan/week')
-      .then(async (res) => {
-        let json: { error?: string } & Partial<WeekPlanResponse> = {}
-        try {
-          json = await res.json()
-        } catch {
-          setError(GENERIC_ERROR)
-          return
-        }
-        if (!res.ok) {
-          setError(json.error ?? GENERIC_ERROR)
-        } else {
-          const weekData = json as WeekPlanResponse
-          setData(weekData)
+  async function loadWeek(options?: { keepSelection?: boolean }) {
+    try {
+      const res = await fetch('/api/plan/week')
+      let json: { error?: string } & Partial<WeekPlanResponse> = {}
+      try {
+        json = await res.json()
+      } catch {
+        setError(GENERIC_ERROR)
+        return
+      }
+      if (!res.ok) {
+        setError(json.error ?? GENERIC_ERROR)
+      } else {
+        const weekData = json as WeekPlanResponse
+        setData(weekData)
+        if (!options?.keepSelection) {
           setSelectedIndex(weekData.dayInWeek - 1)
         }
-      })
-      .catch(() => setError(GENERIC_ERROR))
-      .finally(() => setLoading(false))
+      }
+    } catch {
+      setError(GENERIC_ERROR)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadWeek()
   }, [])
 
   const stripDays = useMemo(() => {
     if (!data) return []
     const computed = computeWeekStripDays(data.dayPointer, data.dayInWeek, new Date())
-    return computed.map((d, i) => ({ ...d, completed: data.days[i]?.completed ?? false }))
+    return computed.map((d, i) => ({
+      ...d,
+      completed: data.days[i]?.completed ?? false,
+      isFuture: i > data.dayInWeek - 1,
+    }))
   }, [data])
 
   async function handleLogout() {
@@ -115,7 +127,10 @@ export default function TodayPage() {
               className="btn btn-primary"
               onClick={async () => {
                 const res = await fetch('/api/plan/complete', { method: 'POST' })
-                if (res.ok) setDone(true)
+                if (res.ok) {
+                  setDone(true)
+                  await loadWeek({ keepSelection: true })
+                }
               }}
             >
               오늘 완료

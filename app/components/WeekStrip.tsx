@@ -6,6 +6,7 @@ interface WeekStripDayView {
   weekdayLabel: string
   isToday: boolean
   completed: boolean
+  isFuture: boolean
 }
 
 interface WeekStripProps {
@@ -23,7 +24,7 @@ export default function WeekStrip({ days, selectedIndex, onSelect }: WeekStripPr
           type="button"
           className={`week-strip-day${day.isToday ? ' week-strip-day-today' : ''}${
             i === selectedIndex ? ' week-strip-day-selected' : ''
-          }`}
+          }${day.isFuture ? ' week-strip-day-future' : ''}`}
           onClick={() => onSelect(i)}
         >
           <span className="week-strip-weekday">{day.weekdayLabel}</span>

@@ -373,7 +373,6 @@ select.input {
 .week-strip-weekday {
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-secondary);
 }
 
 .week-strip-date {
@@ -392,6 +391,10 @@ select.input {
   background-origin: border-box;
   background-clip: padding-box, border-box;
   color: var(--text);
+}
+
+.week-strip-day-future {
+  opacity: 0.55;
 }
 
 .week-strip-check {
