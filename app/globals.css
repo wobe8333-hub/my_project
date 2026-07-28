@@ -303,6 +303,13 @@ select.input {
   color: var(--text-secondary);
 }
 
+.video-embed {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: var(--radius-md);
+}
+
 /* Post card (Instagram-style) */
 
 .post-card {

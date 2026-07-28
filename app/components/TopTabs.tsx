@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Calendar, History, User } from 'lucide-react'
+import { Calendar, History, Video, User } from 'lucide-react'
 
 const TABS = [
   { href: '/today', label: '오늘', Icon: Calendar },
   { href: '/history', label: '기록', Icon: History },
+  { href: '/videos', label: '운동법', Icon: Video },
   { href: '/profile', label: '프로필', Icon: User },
 ]
 
