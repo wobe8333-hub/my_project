@@ -119,23 +119,22 @@ export default function TodayPage() {
           <p className="post-card-body">{selectedDay.diet}</p>
         </div>
 
-        {isToday &&
-          (done ? (
-            <p className="text-secondary">오늘 완료 처리되었습니다. 수고하셨습니다!</p>
-          ) : (
-            <button
-              className="btn btn-primary"
-              onClick={async () => {
-                const res = await fetch('/api/plan/complete', { method: 'POST' })
-                if (res.ok) {
-                  setDone(true)
-                  await loadWeek({ keepSelection: true })
-                }
-              }}
-            >
-              오늘 완료
-            </button>
-          ))}
+        {done && <p className="text-secondary">오늘 완료 처리되었습니다. 수고하셨습니다!</p>}
+
+        {isToday && !done && (
+          <button
+            className="btn btn-primary"
+            onClick={async () => {
+              const res = await fetch('/api/plan/complete', { method: 'POST' })
+              if (res.ok) {
+                setDone(true)
+                await loadWeek({ keepSelection: true })
+              }
+            }}
+          >
+            오늘 완료
+          </button>
+        )}
 
         <div className="row">
           <button type="button" className="btn-text" onClick={handleLogout}>
