@@ -8,15 +8,18 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const router = useRouter()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setSubmitting(true)
     const supabase = createBrowserSupabase()
     const { error } = await supabase.auth.signUp({ email, password })
     if (error) {
       setError('가입에 실패했습니다: ' + error.message)
+      setSubmitting(false)
       return
     }
     router.push('/login')
@@ -43,7 +46,9 @@ export default function SignupPage() {
           minLength={6}
           required
         />
-        <button className="btn btn-primary" type="submit">가입하기</button>
+        <button className="btn btn-primary" type="submit" disabled={submitting}>
+          {submitting ? '가입 중...' : '가입하기'}
+        </button>
       </form>
       {error && <p className="text-error">{error}</p>}
     </main>

@@ -8,15 +8,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const router = useRouter()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setSubmitting(true)
     const supabase = createBrowserSupabase()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       setError('로그인에 실패했습니다: ' + error.message)
+      setSubmitting(false)
       return
     }
     router.push('/today')
@@ -43,7 +46,9 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button className="btn btn-primary" type="submit">로그인</button>
+        <button className="btn btn-primary" type="submit" disabled={submitting}>
+          {submitting ? '로그인 중...' : '로그인'}
+        </button>
       </form>
       {error && <p className="text-error">{error}</p>}
       <p className="text-secondary">
