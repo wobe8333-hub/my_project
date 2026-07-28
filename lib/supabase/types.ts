@@ -155,6 +155,7 @@ export type Database = {
           id: string
           plan: Json
           user_id: string
+          week_anchor_pointer: number
           week_number: number
         }
         Insert: {
@@ -162,6 +163,7 @@ export type Database = {
           id?: string
           plan: Json
           user_id: string
+          week_anchor_pointer?: number
           week_number: number
         }
         Update: {
@@ -169,6 +171,7 @@ export type Database = {
           id?: string
           plan?: Json
           user_id?: string
+          week_anchor_pointer?: number
           week_number?: number
         }
         Relationships: []

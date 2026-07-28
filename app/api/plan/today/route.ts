@@ -37,6 +37,7 @@ export async function GET() {
       .from('weekly_plans')
       .select('*')
       .eq('user_id', userId)
+      .eq('week_anchor_pointer', effectiveAnchor)
       .eq('week_number', weekNumber)
       .maybeSingle()
 
@@ -79,24 +80,31 @@ export async function GET() {
         adherenceNote
       )
 
-      await supabase.from('weekly_plans').upsert(
+      const { error: upsertError } = await supabase.from('weekly_plans').upsert(
         {
           user_id: userId,
+          week_anchor_pointer: effectiveAnchor,
           week_number: weekNumber,
           plan: generated,
           created_at: new Date().toISOString(),
         },
-        { onConflict: 'user_id,week_number' }
+        { onConflict: 'user_id,week_anchor_pointer,week_number' }
       )
+      if (upsertError) {
+        throw new Error('주간 계획 저장에 실패했습니다: ' + upsertError.message)
+      }
 
       if (needsRegeneration) {
-        await supabase
+        const { error: profileUpdateError } = await supabase
           .from('profiles')
           .update({
             last_progress_at: now.toISOString(),
             week_anchor_pointer: profile.day_pointer,
           })
           .eq('user_id', userId)
+        if (profileUpdateError) {
+          throw new Error('프로필 갱신에 실패했습니다: ' + profileUpdateError.message)
+        }
       }
 
       plan = generated

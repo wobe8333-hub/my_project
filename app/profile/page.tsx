@@ -27,6 +27,7 @@ export default function ProfilePage() {
   const [equipmentList, setEquipmentList] = useState<string[]>([])
   const [checkedEquipment, setCheckedEquipment] = useState<string[]>([])
   const [hydrating, setHydrating] = useState(true)
+  const [hydrationError, setHydrationError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -37,34 +38,38 @@ export default function ProfilePage() {
           fetch('/api/gym-equipment'),
         ])
 
-        if (profileRes.ok) {
-          const { profile } = await profileRes.json()
-          if (profile) {
-            setForm({
-              heightCm: profile.height_cm != null ? String(profile.height_cm) : '',
-              weightKg: profile.weight_kg != null ? String(profile.weight_kg) : '',
-              bodyFatPct: profile.body_fat_pct != null ? String(profile.body_fat_pct) : '',
-              muscleMassKg: profile.muscle_mass_kg != null ? String(profile.muscle_mass_kg) : '',
-              age: profile.age != null ? String(profile.age) : '',
-              gender: profile.gender ?? 'male',
-              experienceLevel: profile.experience_level ?? 'beginner',
-              weeklyDays: profile.weekly_days != null ? String(profile.weekly_days) : '3',
-              sessionMinutes: profile.session_minutes != null ? String(profile.session_minutes) : '60',
-              goal: profile.goal ?? '',
-              environment: profile.environment ?? 'home',
-              gymName: profile.gym_name ?? '',
-              allergies: Array.isArray(profile.allergies) ? profile.allergies.join(', ') : '',
-            })
-          }
+        if (!profileRes.ok || !equipmentRes.ok) {
+          throw new Error('기존 정보를 불러오지 못했습니다.')
         }
 
-        if (equipmentRes.ok) {
-          const { equipment } = await equipmentRes.json()
-          if (Array.isArray(equipment) && equipment.length > 0) {
-            setEquipmentList(equipment)
-            setCheckedEquipment(equipment)
-          }
+        const { profile } = await profileRes.json()
+        if (profile) {
+          setForm({
+            heightCm: profile.height_cm != null ? String(profile.height_cm) : '',
+            weightKg: profile.weight_kg != null ? String(profile.weight_kg) : '',
+            bodyFatPct: profile.body_fat_pct != null ? String(profile.body_fat_pct) : '',
+            muscleMassKg: profile.muscle_mass_kg != null ? String(profile.muscle_mass_kg) : '',
+            age: profile.age != null ? String(profile.age) : '',
+            gender: profile.gender ?? 'male',
+            experienceLevel: profile.experience_level ?? 'beginner',
+            weeklyDays: profile.weekly_days != null ? String(profile.weekly_days) : '3',
+            sessionMinutes: profile.session_minutes != null ? String(profile.session_minutes) : '60',
+            goal: profile.goal ?? '',
+            environment: profile.environment ?? 'home',
+            gymName: profile.gym_name ?? '',
+            allergies: Array.isArray(profile.allergies) ? profile.allergies.join(', ') : '',
+          })
         }
+
+        const { equipment } = await equipmentRes.json()
+        if (Array.isArray(equipment) && equipment.length > 0) {
+          setEquipmentList(equipment)
+          setCheckedEquipment(equipment)
+        }
+      } catch {
+        setHydrationError(
+          '기존 프로필 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.'
+        )
       } finally {
         setHydrating(false)
       }
@@ -112,6 +117,17 @@ export default function ProfilePage() {
 
   if (hydrating) {
     return <main style={{ padding: 24 }}>불러오는 중...</main>
+  }
+
+  if (hydrationError) {
+    return (
+      <main style={{ padding: 24 }}>
+        <p>{hydrationError}</p>
+        <button type="button" onClick={() => window.location.reload()}>
+          다시 시도
+        </button>
+      </main>
+    )
   }
 
   const equipmentChecklist = Array.from(new Set([...FIXED_EQUIPMENT, ...equipmentList]))
