@@ -45,32 +45,39 @@ export default function TodayPage() {
     router.push('/login')
   }
 
-  if (loading) return <main style={{ padding: 24 }}>불러오는 중...</main>
+  if (loading) return <main className="page"><p className="text-secondary">불러오는 중...</p></main>
   if (error) {
     return (
-      <main style={{ padding: 24 }}>
-        <p>{error}</p>
-        <a href="/profile">프로필 입력하러 가기</a>
+      <main className="page">
+        <p className="text-error">{error}</p>
+        <a className="text-link" href="/profile">프로필 입력하러 가기</a>
       </main>
     )
   }
   if (!data) return null
 
   return (
-    <main style={{ padding: 24, maxWidth: 480 }}>
-      <h1>오늘 ({data.dayPointer}일차)</h1>
-      <section>
-        <h2>오늘의 운동</h2>
-        <p style={{ whiteSpace: 'pre-wrap' }}>{data.today.workout}</p>
-      </section>
-      <section>
-        <h2>오늘의 식단</h2>
-        <p style={{ whiteSpace: 'pre-wrap' }}>{data.today.diet}</p>
-      </section>
+    <main className="page">
+      <div className="row">
+        <h1 className="page-title">오늘</h1>
+        <span className="badge">{data.dayPointer}일차</span>
+      </div>
+
+      <div className="card">
+        <span className="card-title">오늘의 운동</span>
+        <p className="card-body">{data.today.workout}</p>
+      </div>
+
+      <div className="card">
+        <span className="card-title">오늘의 식단</span>
+        <p className="card-body">{data.today.diet}</p>
+      </div>
+
       {done ? (
-        <p>오늘 완료 처리되었습니다. 수고하셨습니다!</p>
+        <p className="text-secondary">오늘 완료 처리되었습니다. 수고하셨습니다!</p>
       ) : (
         <button
+          className="btn btn-primary"
           onClick={async () => {
             const res = await fetch('/api/plan/complete', { method: 'POST' })
             if (res.ok) setDone(true)
@@ -79,12 +86,15 @@ export default function TodayPage() {
           오늘 완료
         </button>
       )}
-      <p>
-        <a href="/history">진행 기록 보기</a> · <a href="/profile">프로필 수정</a> ·{' '}
-        <button type="button" onClick={handleLogout} style={{ background: 'none', border: 'none', color: 'inherit', textDecoration: 'underline', cursor: 'pointer', padding: 0, font: 'inherit' }}>
+
+      <div className="row">
+        <p className="text-secondary">
+          <a className="text-link" href="/history">진행 기록</a> · <a className="text-link" href="/profile">프로필 수정</a>
+        </p>
+        <button type="button" className="btn-text" onClick={handleLogout}>
           로그아웃
         </button>
-      </p>
+      </div>
     </main>
   )
 }

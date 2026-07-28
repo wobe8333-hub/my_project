@@ -24,10 +24,11 @@ export default function LoginPage() {
   }
 
   return (
-    <main style={{ padding: 24, maxWidth: 400 }}>
-      <h1>로그인</h1>
-      <form onSubmit={handleSubmit}>
+    <main className="page">
+      <h1 className="page-title">로그인</h1>
+      <form className="stack" onSubmit={handleSubmit}>
         <input
+          className="input"
           type="email"
           placeholder="이메일"
           value={email}
@@ -35,15 +36,19 @@ export default function LoginPage() {
           required
         />
         <input
+          className="input"
           type="password"
           placeholder="비밀번호"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">로그인</button>
+        <button className="btn btn-primary" type="submit">로그인</button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="text-error">{error}</p>}
+      <p className="text-secondary">
+        아직 계정이 없으신가요? <a className="text-link" href="/signup">회원가입</a>
+      </p>
     </main>
   )
 }

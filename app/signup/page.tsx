@@ -23,10 +23,11 @@ export default function SignupPage() {
   }
 
   return (
-    <main style={{ padding: 24, maxWidth: 400 }}>
-      <h1>회원가입</h1>
-      <form onSubmit={handleSubmit}>
+    <main className="page">
+      <h1 className="page-title">회원가입</h1>
+      <form className="stack" onSubmit={handleSubmit}>
         <input
+          className="input"
           type="email"
           placeholder="이메일"
           value={email}
@@ -34,6 +35,7 @@ export default function SignupPage() {
           required
         />
         <input
+          className="input"
           type="password"
           placeholder="비밀번호 (6자 이상)"
           value={password}
@@ -41,9 +43,9 @@ export default function SignupPage() {
           minLength={6}
           required
         />
-        <button type="submit">가입하기</button>
+        <button className="btn btn-primary" type="submit">가입하기</button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="text-error">{error}</p>}
     </main>
   )
 }

@@ -17,7 +17,7 @@ export default function HistoryPage() {
       .then(setData)
   }, [])
 
-  if (!data) return <main style={{ padding: 24 }}>불러오는 중...</main>
+  if (!data) return <main className="page"><p className="text-secondary">불러오는 중...</p></main>
 
   const completionRate = Math.min(
     100,
@@ -25,17 +25,23 @@ export default function HistoryPage() {
   )
 
   return (
-    <main style={{ padding: 24, maxWidth: 480 }}>
-      <h1>진행 기록</h1>
-      <p>현재 {data.currentDayPointer}일차 진행 중 (완료율 {completionRate}%)</p>
-      <ul>
+    <main className="page">
+      <h1 className="page-title">진행 기록</h1>
+
+      <div className="card">
+        <span className="card-title">현재 {data.currentDayPointer}일차 진행 중</span>
+        <span className="card-body">완료율 {completionRate}%</span>
+      </div>
+
+      <ul className="list">
         {data.completedDays.map((d) => (
-          <li key={d.day_pointer}>
+          <li className="list-item" key={d.day_pointer}>
             {d.day_pointer}일차 완료 — {new Date(d.completed_at).toLocaleDateString('ko-KR')}
           </li>
         ))}
       </ul>
-      <p><a href="/today">오늘로 돌아가기</a></p>
+
+      <p className="text-secondary"><a className="text-link" href="/today">오늘로 돌아가기</a></p>
     </main>
   )
 }
