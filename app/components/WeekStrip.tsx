@@ -1,5 +1,7 @@
 'use client'
 
+import { Check } from 'lucide-react'
+
 interface WeekStripDayView {
   dayPointer: number
   isoDate: string
@@ -29,7 +31,11 @@ export default function WeekStrip({ days, selectedIndex, onSelect }: WeekStripPr
         >
           <span className="week-strip-weekday">{day.weekdayLabel}</span>
           <span className="week-strip-date">{Number(day.isoDate.slice(8, 10))}</span>
-          {day.completed && <span className="week-strip-check">✓</span>}
+          {day.completed && (
+            <span className="week-strip-check">
+              <Check size={10} strokeWidth={3} />
+            </span>
+          )}
         </button>
       ))}
     </div>

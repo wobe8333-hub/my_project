@@ -56,6 +56,25 @@ export async function upsertProfile(
   }, { onConflict: 'user_id' })
 
   if (error) throw new Error('프로필 저장에 실패했습니다: ' + error.message)
+
+  if (input.bodyFatPct != null || input.muscleMassKg != null) {
+    await supabase.from('inbody_history').insert({
+      user_id: userId,
+      body_fat_pct: input.bodyFatPct ?? null,
+      muscle_mass_kg: input.muscleMassKg ?? null,
+    })
+  }
+}
+
+export async function getInbodyHistory(supabase: SupabaseClient, userId: string) {
+  const { data, error } = await supabase
+    .from('inbody_history')
+    .select('body_fat_pct, muscle_mass_kg, recorded_at')
+    .eq('user_id', userId)
+    .order('recorded_at', { ascending: true })
+
+  if (error) throw new Error('인바디 기록 조회에 실패했습니다: ' + error.message)
+  return data ?? []
 }
 
 export async function getProfile(supabase: SupabaseClient, userId: string) {
