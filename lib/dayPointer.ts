@@ -7,11 +7,15 @@ export function shouldRegeneratePlan(lastProgressAt: Date | null, now: Date): bo
   return gapDays >= REGENERATE_GAP_DAYS
 }
 
-export function getCurrentWeekAndDay(dayPointer: number): {
+export function getCurrentWeekAndDay(
+  dayPointer: number,
+  weekAnchorPointer: number = 1
+): {
   weekNumber: number
   dayInWeek: number
 } {
-  const weekNumber = Math.floor((dayPointer - 1) / 7) + 1
-  const dayInWeek = ((dayPointer - 1) % 7) + 1
+  const daysSinceAnchor = dayPointer - weekAnchorPointer
+  const weekNumber = Math.floor(daysSinceAnchor / 7) + 1
+  const dayInWeek = (daysSinceAnchor % 7) + 1
   return { weekNumber, dayInWeek }
 }

@@ -31,4 +31,12 @@ describe('getCurrentWeekAndDay', () => {
   it('day_pointer 14는 2주차 7일차다', () => {
     expect(getCurrentWeekAndDay(14)).toEqual({ weekNumber: 2, dayInWeek: 7 })
   })
+
+  it('anchor가 지정되면 anchor 기준으로 1주차 1일차부터 다시 계산한다', () => {
+    expect(getCurrentWeekAndDay(33, 33)).toEqual({ weekNumber: 1, dayInWeek: 1 })
+  })
+
+  it('anchor 이후 8일째는 2주차 1일차다', () => {
+    expect(getCurrentWeekAndDay(40, 33)).toEqual({ weekNumber: 2, dayInWeek: 1 })
+  })
 })

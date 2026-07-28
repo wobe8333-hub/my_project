@@ -1,28 +1,76 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+const FIXED_EQUIPMENT = ['덤벨', '바벨', '스미스머신', '렛풀다운', '레그프레스', '케틀벨', '러닝머신', '벤치프레스']
+
+const EMPTY_FORM = {
+  heightCm: '',
+  weightKg: '',
+  bodyFatPct: '',
+  muscleMassKg: '',
+  age: '',
+  gender: 'male',
+  experienceLevel: 'beginner',
+  weeklyDays: '3',
+  sessionMinutes: '60',
+  goal: '',
+  environment: 'home',
+  gymName: '',
+  allergies: '',
+}
+
 export default function ProfilePage() {
-  const [form, setForm] = useState({
-    heightCm: '',
-    weightKg: '',
-    bodyFatPct: '',
-    muscleMassKg: '',
-    age: '',
-    gender: 'male',
-    experienceLevel: 'beginner',
-    weeklyDays: '3',
-    sessionMinutes: '60',
-    goal: '',
-    environment: 'home',
-    gymName: '',
-    allergies: '',
-  })
+  const [form, setForm] = useState(EMPTY_FORM)
   const [message, setMessage] = useState<string | null>(null)
   const [equipmentList, setEquipmentList] = useState<string[]>([])
   const [checkedEquipment, setCheckedEquipment] = useState<string[]>([])
+  const [hydrating, setHydrating] = useState(true)
   const router = useRouter()
+
+  useEffect(() => {
+    async function hydrate() {
+      try {
+        const [profileRes, equipmentRes] = await Promise.all([
+          fetch('/api/profile'),
+          fetch('/api/gym-equipment'),
+        ])
+
+        if (profileRes.ok) {
+          const { profile } = await profileRes.json()
+          if (profile) {
+            setForm({
+              heightCm: profile.height_cm != null ? String(profile.height_cm) : '',
+              weightKg: profile.weight_kg != null ? String(profile.weight_kg) : '',
+              bodyFatPct: profile.body_fat_pct != null ? String(profile.body_fat_pct) : '',
+              muscleMassKg: profile.muscle_mass_kg != null ? String(profile.muscle_mass_kg) : '',
+              age: profile.age != null ? String(profile.age) : '',
+              gender: profile.gender ?? 'male',
+              experienceLevel: profile.experience_level ?? 'beginner',
+              weeklyDays: profile.weekly_days != null ? String(profile.weekly_days) : '3',
+              sessionMinutes: profile.session_minutes != null ? String(profile.session_minutes) : '60',
+              goal: profile.goal ?? '',
+              environment: profile.environment ?? 'home',
+              gymName: profile.gym_name ?? '',
+              allergies: Array.isArray(profile.allergies) ? profile.allergies.join(', ') : '',
+            })
+          }
+        }
+
+        if (equipmentRes.ok) {
+          const { equipment } = await equipmentRes.json()
+          if (Array.isArray(equipment) && equipment.length > 0) {
+            setEquipmentList(equipment)
+            setCheckedEquipment(equipment)
+          }
+        }
+      } finally {
+        setHydrating(false)
+      }
+    }
+    hydrate()
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -61,6 +109,12 @@ export default function ProfilePage() {
       setMessage('오류: ' + data.error)
     }
   }
+
+  if (hydrating) {
+    return <main style={{ padding: 24 }}>불러오는 중...</main>
+  }
+
+  const equipmentChecklist = Array.from(new Set([...FIXED_EQUIPMENT, ...equipmentList]))
 
   return (
     <main style={{ padding: 24, maxWidth: 480 }}>
@@ -163,22 +217,20 @@ export default function ProfilePage() {
             >
               기구 자동 조회
             </button>
-            {['덤벨', '바벨', '스미스머신', '렛풀다운', '레그프레스', '케틀벨', '러닝머신', '벤치프레스'].map(
-              (item) => (
-                <label key={item} style={{ display: 'block' }}>
-                  <input
-                    type="checkbox"
-                    checked={checkedEquipment.includes(item)}
-                    onChange={(e) => {
-                      setCheckedEquipment((prev) =>
-                        e.target.checked ? [...prev, item] : prev.filter((x) => x !== item)
-                      )
-                    }}
-                  />
-                  {item}
-                </label>
-              )
-            )}
+            {equipmentChecklist.map((item) => (
+              <label key={item} style={{ display: 'block' }}>
+                <input
+                  type="checkbox"
+                  checked={checkedEquipment.includes(item)}
+                  onChange={(e) => {
+                    setCheckedEquipment((prev) =>
+                      e.target.checked ? [...prev, item] : prev.filter((x) => x !== item)
+                    )
+                  }}
+                />
+                {item}
+              </label>
+            ))}
           </>
         )}
         <label>음식 알레르기/기피 (쉼표로 구분) <input value={form.allergies} onChange={(e) => setForm({ ...form, allergies: e.target.value })} /></label>

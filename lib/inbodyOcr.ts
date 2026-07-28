@@ -46,7 +46,13 @@ export async function analyzeInbodyPhoto(base64Image: string): Promise<InbodyRes
   const content = data.choices?.[0]?.message?.content
   if (!content) throw new Error('OpenRouter 응답에 내용이 없습니다.')
 
-  const parsed = JSON.parse(content)
+  let parsed: any
+  try {
+    parsed = JSON.parse(content)
+  } catch {
+    throw new Error('AI 응답을 파싱할 수 없습니다.')
+  }
+
   return {
     bodyFatPct: parsed.bodyFatPct ?? null,
     muscleMassKg: parsed.muscleMassKg ?? null,

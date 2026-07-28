@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 interface HistoryResponse {
   completedDays: { day_pointer: number; completed_at: string }[]
   currentDayPointer: number
+  daysSinceSignup: number
 }
 
 export default function HistoryPage() {
@@ -18,11 +19,10 @@ export default function HistoryPage() {
 
   if (!data) return <main style={{ padding: 24 }}>불러오는 중...</main>
 
-  const totalPossibleDays = Math.max(data.currentDayPointer - 1, 0)
-  const completionRate =
-    totalPossibleDays > 0
-      ? Math.round((data.completedDays.length / totalPossibleDays) * 100)
-      : 0
+  const completionRate = Math.min(
+    100,
+    Math.round((data.completedDays.length / data.daysSinceSignup) * 100)
+  )
 
   return (
     <main style={{ padding: 24, maxWidth: 480 }}>

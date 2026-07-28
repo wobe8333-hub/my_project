@@ -71,6 +71,7 @@ export type Database = {
           session_minutes: number
           updated_at: string
           user_id: string
+          week_anchor_pointer: number
           weekly_days: number
           weight_kg: number
         }
@@ -91,6 +92,7 @@ export type Database = {
           session_minutes: number
           updated_at?: string
           user_id: string
+          week_anchor_pointer?: number
           weekly_days: number
           weight_kg: number
         }
@@ -111,6 +113,7 @@ export type Database = {
           session_minutes?: number
           updated_at?: string
           user_id?: string
+          week_anchor_pointer?: number
           weekly_days?: number
           weight_kg?: number
         }
