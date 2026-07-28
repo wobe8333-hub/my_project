@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import TopTabs from '@/app/components/TopTabs'
 
 const FIXED_EQUIPMENT = ['덤벨', '바벨', '스미스머신', '렛풀다운', '레그프레스', '케틀벨', '러닝머신', '벤치프레스']
 
@@ -116,25 +117,35 @@ export default function ProfilePage() {
   }
 
   if (hydrating) {
-    return <main className="page"><p className="text-secondary">불러오는 중...</p></main>
+    return (
+      <>
+        <TopTabs />
+        <main className="page"><p className="text-secondary">불러오는 중...</p></main>
+      </>
+    )
   }
 
   if (hydrationError) {
     return (
-      <main className="page">
-        <p className="text-error">{hydrationError}</p>
-        <button className="btn btn-secondary" type="button" onClick={() => window.location.reload()}>
-          다시 시도
-        </button>
-      </main>
+      <>
+        <TopTabs />
+        <main className="page">
+          <p className="text-error">{hydrationError}</p>
+          <button className="btn btn-secondary" type="button" onClick={() => window.location.reload()}>
+            다시 시도
+          </button>
+        </main>
+      </>
     )
   }
 
   const equipmentChecklist = Array.from(new Set([...FIXED_EQUIPMENT, ...equipmentList]))
 
   return (
-    <main className="page">
-      <h1 className="page-title">프로필 입력</h1>
+    <>
+      <TopTabs />
+      <main className="page">
+        <h1 className="page-title">프로필 입력</h1>
       <form className="stack" onSubmit={handleSubmit}>
         <div className="field">
           <label className="field-label">키 (cm)</label>
@@ -292,6 +303,7 @@ export default function ProfilePage() {
         <button className="btn btn-primary" type="submit">저장</button>
       </form>
       {message && <p className="text-secondary">{message}</p>}
-    </main>
+      </main>
+    </>
   )
 }

@@ -51,6 +51,39 @@ button {
   font-family: inherit;
 }
 
+/* Top tabs */
+
+.top-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.top-tabs-inner {
+  display: flex;
+  width: 100%;
+  max-width: 480px;
+}
+
+.top-tab {
+  flex: 1;
+  text-align: center;
+  padding: 14px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+}
+
+.top-tab-active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
 /* Layout */
 
 .page {
