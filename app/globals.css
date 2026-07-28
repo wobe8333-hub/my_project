@@ -370,6 +370,12 @@ select.input {
   position: relative;
 }
 
+.week-strip-weekday {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 .week-strip-date {
   font-size: 14px;
   font-weight: 700;
