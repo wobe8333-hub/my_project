@@ -19,11 +19,15 @@ describe('generateWeeklyPlan', () => {
     process.env.OPENROUTER_API_KEY = 'test-key'
   })
 
-  it('근거 기반 운동/식단 규칙을 프롬프트에 포함한다', async () => {
-    const days = Array.from({ length: 7 }, (_, i) => ({
-      workout: `운동 ${i + 1}`,
-      diet: `식단 ${i + 1}`,
+  const fakeDays = () =>
+    Array.from({ length: 7 }, (_, i) => ({
+      workoutTitle: `카테고리 ${i + 1}`,
+      workoutItems: [`종목 ${i + 1}`],
+      dietItems: [`아침 ${i + 1}`, `점심 ${i + 1}`, `저녁 ${i + 1}`],
     }))
+
+  it('근거 기반 운동/식단 규칙을 프롬프트에 포함한다', async () => {
+    const days = fakeDays()
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -38,15 +42,13 @@ describe('generateWeeklyPlan', () => {
     const prompt = body.messages[0].content
     expect(prompt).toContain('1RM')
     expect(prompt).toContain('g/kg')
+    expect(prompt).toContain('1일차: 운동일')
     expect(prompt).toContain('점진과부하')
     expect(prompt).toContain('휴식')
   })
 
-  it('7일치 계획을 반환한다', async () => {
-    const days = Array.from({ length: 7 }, (_, i) => ({
-      workout: `운동 ${i + 1}`,
-      diet: `식단 ${i + 1}`,
-    }))
+  it('7일치 계획을 반환하고 운동/식단 배열을 줄바꿈 문자열로 합친다', async () => {
+    const days = fakeDays()
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -56,7 +58,22 @@ describe('generateWeeklyPlan', () => {
 
     const result = await generateWeeklyPlan(fakeProfile, [])
     expect(result.days).toHaveLength(7)
-    expect(result.days[0].workout).toBe('운동 1')
+    expect(result.days[0].workout).toBe('카테고리 1\n종목 1')
+    expect(result.days[0].diet).toBe('아침 1\n점심 1\n저녁 1')
+  })
+
+  it('휴식일(빈 workoutItems)은 workoutTitle만 그대로 사용한다', async () => {
+    const days = fakeDays()
+    days[1] = { workoutTitle: '휴식', workoutItems: [], dietItems: days[1].dietItems }
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ days }) } }],
+      }),
+    }) as any
+
+    const result = await generateWeeklyPlan(fakeProfile, [])
+    expect(result.days[1].workout).toBe('휴식')
   })
 
   it('API 키가 없으면 에러를 던진다', async () => {
@@ -67,10 +84,7 @@ describe('generateWeeklyPlan', () => {
   })
 
   it('응답이 7일치가 아니면 에러를 던진다', async () => {
-    const days = Array.from({ length: 5 }, (_, i) => ({
-      workout: `운동 ${i + 1}`,
-      diet: `식단 ${i + 1}`,
-    }))
+    const days = fakeDays().slice(0, 5)
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -80,6 +94,20 @@ describe('generateWeeklyPlan', () => {
 
     await expect(generateWeeklyPlan(fakeProfile, [])).rejects.toThrow(
       '7일치'
+    )
+  })
+
+  it('7개 항목이지만 필드 형식이 잘못되면 에러를 던진다', async () => {
+    const days = fakeDays().map((d, i) => (i === 0 ? { workout: '잘못된 필드', diet: '옛날 형식' } : d))
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ days }) } }],
+      }),
+    }) as any
+
+    await expect(generateWeeklyPlan(fakeProfile, [])).rejects.toThrow(
+      '올바른 형식으로 생성하지 못했습니다'
     )
   })
 
