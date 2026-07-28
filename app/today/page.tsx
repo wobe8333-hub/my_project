@@ -19,7 +19,7 @@ export default function TodayPage() {
   const [data, setData] = useState<WeekPlanResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [done, setDone] = useState(false)
+  const [completedIndex, setCompletedIndex] = useState<number | null>(null)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const router = useRouter()
 
@@ -92,6 +92,7 @@ export default function TodayPage() {
 
   const selectedDay = data.days[selectedIndex]
   const isToday = selectedIndex === data.dayInWeek - 1
+  const isJustCompleted = selectedIndex === completedIndex
 
   return (
     <>
@@ -119,15 +120,15 @@ export default function TodayPage() {
           <p className="post-card-body">{selectedDay.diet}</p>
         </div>
 
-        {done && <p className="text-secondary">오늘 완료 처리되었습니다. 수고하셨습니다!</p>}
+        {isJustCompleted && <p className="text-secondary">오늘 완료 처리되었습니다. 수고하셨습니다!</p>}
 
-        {isToday && !done && (
+        {isToday && !isJustCompleted && (
           <button
             className="btn btn-primary"
             onClick={async () => {
               const res = await fetch('/api/plan/complete', { method: 'POST' })
               if (res.ok) {
-                setDone(true)
+                setCompletedIndex(selectedIndex)
                 await loadWeek({ keepSelection: true })
               }
             }}
