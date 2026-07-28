@@ -19,6 +19,29 @@ describe('generateWeeklyPlan', () => {
     process.env.OPENROUTER_API_KEY = 'test-key'
   })
 
+  it('근거 기반 운동/식단 규칙을 프롬프트에 포함한다', async () => {
+    const days = Array.from({ length: 7 }, (_, i) => ({
+      workout: `운동 ${i + 1}`,
+      diet: `식단 ${i + 1}`,
+    }))
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ days }) } }],
+      }),
+    })
+    global.fetch = fetchMock as any
+
+    await generateWeeklyPlan(fakeProfile, [])
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body)
+    const prompt = body.messages[0].content
+    expect(prompt).toContain('1RM')
+    expect(prompt).toContain('g/kg')
+    expect(prompt).toContain('점진과부하')
+    expect(prompt).toContain('휴식')
+  })
+
   it('7일치 계획을 반환한다', async () => {
     const days = Array.from({ length: 7 }, (_, i) => ({
       workout: `운동 ${i + 1}`,

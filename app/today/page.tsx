@@ -16,7 +16,7 @@ interface WeekPlanResponse {
 
 const GENERIC_ERROR = '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
 
-function Checklist({ text }: { text: string }) {
+function Checklist({ text, hasTitle }: { text: string; hasTitle?: boolean }) {
   const lines = useMemo(() => text.split('\n').map((l) => l.trim()).filter(Boolean), [text])
   const [checked, setChecked] = useState<Set<number>>(new Set())
 
@@ -24,9 +24,13 @@ function Checklist({ text }: { text: string }) {
     return <p className="post-card-body">{text}</p>
   }
 
+  const title = hasTitle ? lines[0] : null
+  const items = hasTitle ? lines.slice(1) : lines
+
   return (
     <div className="post-card-body checklist">
-      {lines.map((line, i) => (
+      {title && <p className="checklist-title">{title}</p>}
+      {items.map((line, i) => (
         <label key={i} className={`checklist-item${checked.has(i) ? ' checklist-item-done' : ''}`}>
           <input
             type="checkbox"
@@ -187,7 +191,7 @@ export default function TodayPage() {
             <span className="post-card-icon"><Dumbbell size={16} color="#fff" /></span>
             <span className="post-card-label">운동</span>
           </div>
-          <Checklist text={selectedDay.workout} />
+          <Checklist text={selectedDay.workout} hasTitle />
         </div>
 
         <div className="post-card">
